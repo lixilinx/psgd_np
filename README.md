@@ -1,3 +1,4 @@
+*Coming updates: I am implementing a sparse LU decomposition preconditioner. It is a limited-memory preconditioner, performs well, and works with a list of tensor parameters having arbitrary shapes.* 
 ### Numpy implementation of PSGD
 This package implements preconditioned stochastic gradient descent (PSGD) with Numpy. We have implemented diagonal preconditioner (diag, related to equilibrated SGD), SCaling-And-Normalization preconditioner (scan, related to batch normalization), Kronecker product preconditioner (kron), and dense preconditioner (dense). Please refer to the Tensorflow implementations (https://github.com/lixilinx/psgd_tf) for more information related to PSGD.
 
