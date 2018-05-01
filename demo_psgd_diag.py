@@ -18,7 +18,7 @@ for num_iter in range(10000):
     # calculate loss and gradient
     loss = train_criterion(Ws, x, y)
     grads = grad(loss, Ws, create_graph=True)
-    Loss.append(loss.data.numpy()[0])
+    Loss.append(loss.data.numpy())
     
     # update preconditioners
     Q_update_gap = max(int(np.floor(np.log10(num_iter + 1.0))), 1)
