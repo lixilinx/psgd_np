@@ -18,7 +18,7 @@ for num_iter in range(10000):
         
     # update Ws
     grad_norm = torch.sqrt(sum([torch.sum(g*g) for g in grads]))
-    grad_norm = grad_norm.data[0]
+    grad_norm = grad_norm.data
     if grad_norm > grad_norm_clip_thr:
         step_adjust = grad_norm_clip_thr/grad_norm
     else:
