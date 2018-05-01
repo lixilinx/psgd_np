@@ -14,7 +14,7 @@ for num_iter in range(10000):
     # calculate loss and gradient
     loss = train_criterion(Ws, x, y)
     grads = grad(loss, Ws)
-    Loss.append(loss.data.numpy()[0])
+    Loss.append(loss.data.numpy())
         
     # update Ws
     grad_norm = torch.sqrt(sum([torch.sum(g*g) for g in grads]))
