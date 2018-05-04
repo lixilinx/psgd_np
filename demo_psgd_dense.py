@@ -1,46 +1,28 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import torch
-from torch.autograd import Variable, grad
 
 import preconditioned_stochastic_gradient_descent as psgd 
-from rnn_add_problem_data_model_loss import get_batches, Ws, train_criterion
+from tensor_rank_decomposition import trd_cost_grad
 
-# initialize preconditioner with identity matrix
-num_para = sum([np.prod(W.size()) for W in Ws])
-Q = np.eye(num_para)
-# begin iteration here
-step_size = 0.02
-grad_norm_clip_thr = 1.0
+I, J, K, R = 3, 5, 7, 11
+np.random.seed(1)
+T = np.random.randn(I, J, K)
+x, y, z = np.random.randn(R, I), np.random.randn(R, J), np.random.randn(R, K)
+
+Q = 0.1*np.eye(R*(I + J + K))
+sqrt_eps = np.sqrt(np.finfo(np.float64).eps)
 Loss = []
-for num_iter in range(10000):
-    x, y = get_batches( )
-    
-    # calculate loss and gradient
-    loss = train_criterion(Ws, x, y)
-    grads = grad(loss, Ws, create_graph=True)
-    Loss.append(loss.data.numpy())
-    
-    # update preconditioners
-    Q_update_gap = max(int(np.floor(np.log10(num_iter + 1.0))), 1)
-    if num_iter % Q_update_gap == 0:# let us update Q less frequently
-        delta = [Variable(torch.randn(W.size())) for W in Ws]
-        grad_delta = sum([torch.sum(g*d) for (g, d) in zip(grads, delta)])
-        hess_delta = grad(grad_delta, Ws)
-        Q = psgd.update_precond_dense(Q, [d.data.numpy() for d in delta],
-                                          [h.data.numpy() for h in hess_delta])
-    
-    # update Ws
-    pre_grads = psgd.precond_grad_dense(Q, [g.data.numpy() for g in grads])
-    grad_norm = np.sqrt(sum([np.sum(g*g) for g in pre_grads]))
-    if grad_norm > grad_norm_clip_thr:
-        step_adjust = grad_norm_clip_thr/grad_norm
-    else:
-        step_adjust = 1.0
-    for i in range(len(Ws)):
-        Ws[i].data = Ws[i].data - step_adjust*step_size*torch.FloatTensor(pre_grads[i])
-        
-    if num_iter % 100 == 0:
-        print('training loss: {}'.format(Loss[-1]))
+for num_iter in range(5000):
+    loss, grads = trd_cost_grad(T, [x, y, z])
+    Loss.append(loss)
+    dx, dy, dz = sqrt_eps*np.random.randn(R, I), sqrt_eps*np.random.randn(R, J), sqrt_eps*np.random.randn(R, K)
+    _, perturbed_grads = trd_cost_grad(T, [x + dx, y + dy, z + dz])
+    Q = psgd.update_precond_dense(Q, [dx, dy, dz], [perturbed_grads[0] - grads[0],
+                                                    perturbed_grads[1] - grads[1],
+                                                    perturbed_grads[2] - grads[2]])
+    pre_grads = psgd.precond_grad_dense(Q, grads)
+    x -= pre_grads[0]
+    y -= pre_grads[1]
+    z -= pre_grads[2]
     
 plt.semilogy(Loss)
