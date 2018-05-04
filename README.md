@@ -7,4 +7,4 @@ We demonstrate the usage of different preconditioners with a tensor rank decompo
 
 ![alt text](https://github.com/lixilinx/psgd_np/blob/master/comparison.png)
 
-We see that all preconditioners help to improve convergence. Note that these demos are for mathematic optimizations, and do not explicitly use any second order derivative. However, PSGD is originally designed for stochastic optimizations, and belongs to second order methods. Please check https://github.com/lixilinx/psgd_tf and https://github.com/lixilinx/psgd_torch for more information and examples implemented in Tensorflow and Pytorch.
+We see that all preconditioners help to improve convergence. Note that these demos are for mathematical optimizations, and do not explicitly use any second order derivative. However, PSGD is originally designed for stochastic optimizations, and belongs to second order methods. Please check https://github.com/lixilinx/psgd_tf and https://github.com/lixilinx/psgd_torch for more information and examples implemented in Tensorflow and Pytorch.
