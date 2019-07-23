@@ -11,6 +11,7 @@ Numpy functions for preconditioned SGD
 """
 import numpy as np
 import scipy
+from scipy import linalg
 
 _tiny = np.finfo('float32').tiny   # to avoid dividing by zero
 #_diag_loading = 1e-9   # to avoid numerical difficulty when solving triangular systems
@@ -110,8 +111,8 @@ def update_precond_kron(Ql, Qr, dX, dG, step=0.01, diag=0):
     Qr = rho*Qr
     
     A = Ql.dot( dG.dot( Qr.T ) )
-    Bt = scipy.linalg.solve_triangular(Ql, 
-                                       np.transpose(scipy.linalg.solve_triangular(Qr, dX.T, trans=1, lower=False)), 
+    Bt = linalg.solve_triangular(Ql, 
+                                       np.transpose(linalg.solve_triangular(Qr, dX.T, trans=1, lower=False)), 
                                        trans=1, lower=False)
     
     grad1 = np.triu(A.dot(A.T) - Bt.dot(Bt.T))
@@ -253,11 +254,11 @@ def update_precond_splu(L12, l3, U12, u3, dxs, dgs, step=0.01):
     Qg1 = np.dot(L1, Ug1)
     Qg2 = np.dot(L2, Ug1) + l3*Ug2
     # inv(U^T)*dx
-    iUtx1 = scipy.linalg.solve_triangular(np.transpose(U1), dx[:r], lower=True)
+    iUtx1 = linalg.solve_triangular(np.transpose(U1), dx[:r], lower=True)
     iUtx2 = (dx[r:] - np.dot(np.transpose(U2), iUtx1))/u3
     # inv(Q^T)*dx
     iQtx2 = iUtx2/l3
-    iQtx1 = scipy.linalg.solve_triangular(np.transpose(L1),                     
+    iQtx1 = linalg.solve_triangular(np.transpose(L1),                     
                                           iUtx1 - np.dot(np.transpose(L2), iQtx2), lower=False)
     # L^T*Q*dg
     LtQg1 = np.dot(np.transpose(L1), Qg1) + np.dot(np.transpose(L2), Qg2)
@@ -266,11 +267,11 @@ def update_precond_splu(L12, l3, U12, u3, dxs, dgs, step=0.01):
     Pg1 = np.dot(np.transpose(U1), LtQg1)
     Pg2 = np.dot(np.transpose(U2), LtQg1) + u3*LtQg2
     # inv(L)*inv(Q^T)*dx
-    iLiQtx1 = scipy.linalg.solve_triangular(L1, iQtx1, lower=True)
+    iLiQtx1 = linalg.solve_triangular(L1, iQtx1, lower=True)
     iLiQtx2 = (iQtx2 - np.dot(L2, iLiQtx1))/l3
     # inv(P)*dx
     iPx2 = iLiQtx2/u3
-    iPx1 = scipy.linalg.solve_triangular(U1, iLiQtx1 - np.dot(U2, iPx2), lower=False)
+    iPx1 = linalg.solve_triangular(U1, iLiQtx1 - np.dot(U2, iPx2), lower=False)
     
     # update L
     grad1 = np.dot(Qg1, np.transpose(Qg1)) - np.dot(iQtx1, np.transpose(iQtx1))
