@@ -29,3 +29,7 @@ for i in range(500):
     x = x - 0.5*pre_g[0]
     
 plt.semilogy(values)
+plt.xlabel("Iterations")
+plt.ylabel("Loss")
+plt.savefig("hello_psgd.png")
+plt.show()
